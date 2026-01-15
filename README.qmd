@@ -1,7 +1,9 @@
 ---
 title: "Activity 4: Data visualization 2: Customizing plots"
 subtitle: Jan. 14th, 2026, Calvin Munson
-format: markdown_github
+format: pdf
+pdf: default
+author: Walt and Luis
 
 execute:
   warning: false
@@ -35,8 +37,10 @@ Also, don’t be afraid to use lots of blank lines! It is MUCH nicer for your fu
 
 First, let's load our packages. You should already have the `here` and `ggplot2` packages installed; read them in from the library in your code. Also install and read in the `palmerpenguins` package, which contains built-in data - you may recognize this from Malin's ggplot lecture!
 
+#installing packages and librarying them
+
 ```{r setup, warning = FALSE, message = FALSE}
-# install.packages("palmerpenguins")
+#install.packages("palmerpenguins")
 library(ggplot2)
 library(here)
 library(palmerpenguins)
@@ -73,6 +77,8 @@ ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
 
 Does it look like there is a relationship between these variables? Describe the relationship.
 
+# There might be multiple linear relationships that may be lost in the noise, co-varites may be sex or species. 
+
 ------------------------------------------------------------------------
 
 ### Q1.2: Color the points by species of penguin
@@ -84,9 +90,10 @@ To address the second part of our question:
 1.  Change the aesthetics of this plot to color the points by the species of penguin and
 
 2.  Interpret the graph by describing the relationship you see and if this new visualization changes your answer to Q1.1.
-
+# created new graph with the new "color = species" command, to highlight clusters based on species
 ```{r}
-
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(color = species))
 ```
 
 The take-home message here is to be thorough with how you look at your data! If you ignore certain variables, you might miss important patterns (this is also crucial when deciding what statistical models we should run on our data, but more on that in a few weeks!).
@@ -108,7 +115,7 @@ Using your new color skills, modify the `scale_color_*` code below to include a 
 ```{r}
 ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point(aes(color = species)) +
-  scale_color_brewer(palette = "Dark2")
+  scale_color_manual(values = c("green","red","blue"),) #adding manual colors to each species, colors are assigned by aphabetical order
 ```
 
 Let's make the shape of the points vary by species to even more clearly separate the points by species:
@@ -232,6 +239,17 @@ Let's say we want our limits to include 0, so we manually specify 0 as the minim
 
 ```{r}
 ?scale_y_continuous()
+
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(fill = species,
+                 shape = species),
+             size = 2.5) +
+  geom_smooth(method = "lm",
+              aes(color = species)) +
+  scale_fill_brewer(palette = "Dark2") +
+  scale_color_brewer(palette = "Dark2") +
+  scale_shape_manual(values = c(21, 22, 24)) +
+  scale_y_continuous(limits = c(0, NA)) #replacing the "30" value with "NA" to set the max y-value to ggplots default max value
 ```
 
 ------------------------------------------------------------------------
@@ -264,7 +282,7 @@ To change this, we use the `labs()` function, which allows us to rename whatever
 ```{r}
 ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point(aes(fill = species,
-                 shape = species),
+                 shape = species,),
              size = 2.5) +
   geom_smooth(method = "lm",
               aes(color = species)) +
@@ -272,7 +290,11 @@ ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
   scale_color_brewer(palette = "Dark2") +
   scale_shape_manual(values = c(21, 22, 24)) +
   labs(x = "Bill length (mm)",
-       y = "Bill depth (mm)")
+       y = "Bill depth (mm)",
+       # title = "Bill Length by Bill Depth",
+       color = "Species",
+       fill = "Species",
+       shape = "Species")
 
 ```
 
@@ -327,7 +349,10 @@ Depending on what the element is, you use a different `element_*()` function:
 Go to the `element_text()` help page: under "Usage" you will see what arguments each element function can modify, and if you scroll down to "Arguments," you can read more about the specifics of each element you can modify.
 
 What are the four options for the "face" of the text?
-
+```{r}
+?element_text
+#font face ("plain", "italic", "bold", "bold.italic")
+```
 ------------------------------------------------------------------------
 
 Modifying ALL THAT from scratch can be overwhelming! Thankfully, R has a handful of built-in, pre-curated themes that you can choose from. Add on a new line to this graph and start typing `theme_` - note how multiple options pop up! Let's click on and add `theme_classic()`.
@@ -358,7 +383,25 @@ That looks quite nice! The weird gray default background is gone, and there's no
 Note that the large, red x-axis title has been overridden by the new theme we put in. What happens when you switch the order and put `theme_classic()` before `theme(...)`? (don't forget to remove/add `+`'s where applicable...).
 
 Try out some of the other built-in themes and see what you like!
-
+```{r}
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(fill = species,
+                 shape = species),
+             size = 2.5) +
+  geom_smooth(method = "lm",
+              aes(color = species)) +
+  scale_fill_brewer(palette = "Dark2") +
+  scale_color_brewer(palette = "Dark2") +
+  scale_shape_manual(values = c(21, 22, 24)) +
+  labs(x = "Bill length (mm)",
+       y = "Bill depth (mm)", 
+       fill = "Species",
+       color = "Species",
+       shape = "Species") +
+  theme_minimal() +
+  theme(axis.title.x = element_text(color = "red",
+                                    size = 16)) 
+```
 ------------------------------------------------------------------------
 
 The customization of themes contains far too much content to walk through here - hopefully this provides a springboard into the possibilities! Always remember to revisit help pages and the cheatsheets that have been provided along the way. Here are a couple annotated plots that include a smattering of some other things that we didn't cover:
@@ -465,11 +508,22 @@ Please take a look at the feedback you got on the abalone figure (go back to the
 
 This could be everything from another scientist to a policymaker, a community member, your grandmother, or anyone else. Please write a short explanation of who this person or group of people is.
 
+A: we decided our audience is your grandmother
+
 ------------------------------------------------------------------------
 
 ### Q2.2: Remake your original graph from Monday.
 
 This should be as simple as copy and pasting the code you used on Monday (though remember to read in the data!). You'll need to create a new code block below here (remember how to do that?).
+```{r}
+ab_data = read.csv("abalone_landings.csv")
+ab_plot = ggplot(data = ab_data, mapping = aes(x = Year, y = Abalone_Landings_lbs)) + 
+  geom_point(aes(color = Abalone_Species)) +
+  facet_wrap(Abalone_Species ~., scales = "free_y") +
+  geom_smooth(aes(color = Abalone_Species)) 
+
+ab_plot
+```
 
 ------------------------------------------------------------------------
 
@@ -483,11 +537,30 @@ The past two activities have provided a brief sampling of the possibilities of c
 ### Q2.4 Make the explanatory graph!
 
 Use what you have learned and make a Really Nice Graph for your audience! Go wild with making it pretty.
+```{r}
+ab_data = read.csv("abalone_landings.csv")
+ab_plot = ggplot(data = ab_data, mapping = aes(x = Year, y = Abalone_Landings_lbs)) + 
+  geom_point(aes(color = Abalone_Species)) +
+  geom_smooth(aes(color = Abalone_Species)) + 
+  scale_color_manual(values = c("black","green","pink", "red","gray")) +
+   labs(x = "Year",
+       y = "Abalone Landings (lbs)", 
+       fill = "Species",
+       color = "Species",
+       shape = "Species",
+       title = "Abalone Landings Through The Years") +
 
+  theme_minimal() 
+  
+
+ab_plot
+```
 
 ### Q2.5: Explain your graph
 
 Write a couple sentences explaining the message you hope your audience will take away from seeing your graph.
+
+A: this graph is much more appealing for your grandmother to understand, less individual facets to look at and colors that match that of the ablone species. All wrapped up with nice text formatting and the minimal theme. 
 
 # Wrap up and submit
 
